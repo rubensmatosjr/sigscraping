@@ -37,7 +37,9 @@ def salvaBoletim(linhaAluno):
     	driver.execute_script(scriptTitulo)
     	driver.execute_script('window.print();')
     	
-    	
+
+# Função para configurar a impressão em PDF no navegador.
+# É preciso passar como parâmetro o diretório para salvar os boletins    	
 def configuraChrome(pastaBoletins):
 
    disable_warnings(InsecureRequestWarning)
