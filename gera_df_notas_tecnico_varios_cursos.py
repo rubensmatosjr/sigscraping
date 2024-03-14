@@ -21,7 +21,7 @@ import requests
 import json
 
 def configuraChrome():
-   
+ 
    disable_warnings(InsecureRequestWarning)
    return webdriver.Chrome()
 
@@ -99,16 +99,10 @@ def insereDadosCurso(nomeCurso, nomeCampus):
    campoCampus.send_keys(nomeCampus)
    driver.find_element(By.XPATH, '//input[@value="Buscar"]').click()
 
-def loginSIGAA():
-
-   # Para iniciar, armazenamos o nome de usuário e senha da pessoa no SIGAA
-
-   username=input("Digite seu SIAPE: ")
-   password=getpass("Digite sua senha: ")
+def loginSIGAA(driver, username, password):
 
    # Abre navegador na pagina de Login do SIGAA
 
-   driver = configuraChrome()
    driver.implicitly_wait(5)
    driver.get('https://sigaa.ifs.edu.br/sigaa/verTelaLogin.do')
 
@@ -161,8 +155,15 @@ def baixaBoletinsCurso(nomeCurso):
            print(notas_df)
 
 
-loginSIGAA()
-       
+# Para iniciar, armazenamos o nome de usuário e senha da pessoa no SIGAA
+
+user=input("Digite seu SIAPE: ")
+passw=getpass("Digite sua senha: ")
+
+driver = configuraChrome()
+
+loginSIGAA(driver, user, passw)
+
 #avancaParaConsultaBoletins()
 
 

@@ -18,29 +18,28 @@ import json
 # Não funciona perfeitamente ainda.
 def avancaParaConsultaBoletins():
 
-	driver.find_element(By.CLASS_NAME, "login100-form-btn").click()
-	el = WebDriverWait(driver, timeout=20).until(lambda d: driver.find_element(By.CLASS_NAME,"descricaoOperacao"))
+   driver.find_element(By.CLASS_NAME, "login100-form-btn").click()
+   el = WebDriverWait(driver, timeout=20).until(lambda d: driver.find_element(By.CLASS_NAME,"descricaoOperacao"))
 
-	driver.get("https://sigaa.ifs.edu.br/sigaa/escolhaVinculo.do?dispatch=escolher&vinculo=1")
-	driver.find_element(By.ID, "link").click()
-	driver.get('https://sigaa.ifs.edu.br/sigaa/graduacao/busca_discente.jsf')
+   driver.get("https://sigaa.ifs.edu.br/sigaa/escolhaVinculo.do?dispatch=escolher&vinculo=1")
+   driver.find_element(By.ID, "link").click()
+   driver.get('https://sigaa.ifs.edu.br/sigaa/graduacao/busca_discente.jsf')
 
 
 def salvaBoletim(linhaAluno):
 
-	print("Ativo: "+linhaAluno.text)
-    	nomeAluno = linhaAluno.find_elements(By.TAG_NAME,'td')[3]
-    	tituloBoletim = nomeAluno.text
-    	discButton = linhaAluno.find_element(By.TAG_NAME,'input')
-    	discButton.click()
-    	scriptTitulo = "document.title = '" + tituloBoletim + "';"
-    	driver.execute_script(scriptTitulo)
-    	driver.execute_script('window.print();')
-    	
+   print("Ativo: "+linhaAluno.text)
+   nomeAluno = linhaAluno.find_elements(By.TAG_NAME,'td')[3]
+   tituloBoletim = nomeAluno.text
+   discButton = linhaAluno.find_element(By.TAG_NAME,'input')
+   discButton.click()
+   scriptTitulo = "document.title = '" + tituloBoletim + "';"
+   driver.execute_script(scriptTitulo)
+   driver.execute_script('window.print();')
 
 # Função para configurar a impressão em PDF no navegador.
 # É preciso passar como parâmetro o diretório para salvar os boletins    	
-def configuraChrome(pastaBoletins):
+def configuraChrome(webdriver, pastaBoletins):
 
    disable_warnings(InsecureRequestWarning)
    appState = {
@@ -61,24 +60,25 @@ def configuraChrome(pastaBoletins):
    chrome_options = webdriver.ChromeOptions()
    chrome_options.add_experimental_option('prefs', profile)
    chrome_options.add_argument('--kiosk-printing')
+   webdriver.Chrome(options=chrome_options)
+   return webdriver.Chrome(options=chrome_options)
 
 
 # Para iniciar, armazenamos o nome de usuário e senha da pessoa no SIGAA
 
-username=input("Digite seu SIAPE")
-password=getpass("Digite sua senha")
+username=input("Digite seu SIAPE: ")
+password=getpass("Digite sua senha: ")
 
 # Também solicitamos o caminho da pasta onde os boletins serão salvos
 
-folder=input("Digite o caminho para a pasta onde os boletins serão salvos")
+folder=input("Digite o caminho para a pasta onde os boletins serão salvos: ")
 
 # Definimos algumas propriedades para o navegador Chrome, incluindo a pasta para salvar os PDFs dos boletins
 
-configuraChrome(folder)
+driver = configuraChrome(webdriver,folder)
 
 # Abre navegador na pagina de Login do SIGAA
 
-driver = webdriver.Chrome(options=chrome_options)
 driver.implicitly_wait(5)
 driver.get('https://sigaa.ifs.edu.br/sigaa/verTelaLogin.do')
 
@@ -104,24 +104,22 @@ listaAlunos = driver.find_element(By.CLASS_NAME,"listagem")
 elements = listaAlunos.find_elements(By.TAG_NAME, 'tr')
 
 for idx, e in enumerate(elements):
-    linhaAlunoAtual = elements[idx]
+   linhaAlunoAtual = elements[idx]
 
-    # Se a linha atual da listagem possui o status Ativo, salva o boletim desse aluno 
-    if (status in linhaAlunoAtual.text):
+   # Se a linha atual da listagem possui o status Ativo, salva o boletim desse aluno 
+   if (status in linhaAlunoAtual.text):
 
-    	salvaBoletim(linhaAlunoAtual)
-    	
-    	# Volta para a janela da listagem de alunos    	
+      salvaBoletim(linhaAlunoAtual)
+      # Volta para a janela da listagem de alunos    	
 
-    	time.sleep(2)
-    	driver.back()
-    	driver.refresh()
-    	time.sleep(2)
-    	
-    	# Recupera novamente os elementos da listagem de alunos
-    	# para evitar o erro de "Stale Element Reference Exception"
+      time.sleep(2)
+      driver.back()
+      driver.refresh()
+      time.sleep(2)
+      # Recupera novamente os elementos da listagem de alunos
+      # para evitar o erro de "Stale Element Reference Exception"
 
-    	listaAlunos = driver.find_element(By.CLASS_NAME,"listagem")
-	elements = listaAlunos.find_elements(By.TAG_NAME, 'tr')
-    else:
+      listaAlunos = driver.find_element(By.CLASS_NAME,"listagem")
+      elements = listaAlunos.find_elements(By.TAG_NAME, 'tr')
+   else:
     	print("Não ativo: "+linhaAlunoAtual.text)
